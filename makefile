@@ -10,7 +10,7 @@ includedir = $(prefix)/include
 #TODO make the object directory a config choice
 objdir = ~/Code/Obj
 
-all: $(objdir)/libgxtnc.a
+all: $(objdir)/libgxtnc.a nc_example
 $(objdir)/libgxtnc.a: $(objdir)/nc_input.o $(objdir)/nc_menu.o $(objdir)/nc_message.o $(objdir)/nc_start.o \
 			$(objdir)/nc_stop.o
 	ar rs $(objdir)/libgxtnc.a $(objdir)/nc_*.o
@@ -24,9 +24,12 @@ $(objdir)/nc_start.o: nc_start.c
 	$(GCC) $(CFLAGS) -c $^ -o $@
 $(objdir)/nc_stop.o: nc_stop.c
 	$(GCC) $(CFLAGS) -c $^ -o $@
+nc_example: nc_example.c $(objdir)/libgxtnc.a
+	$(GCC) $(CFLAGS) $^ -o $@ -lmenu -lncurses
 
 clean:
-	@rm *~
+	@rm -f *~
+	@rm -f *.o
 
 install: $(includedir)/nc_main.h
 $(includedir)/nc_main.h: nc_main.h
