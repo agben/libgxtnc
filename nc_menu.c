@@ -5,6 +5,7 @@
 //	usage:	selection = nc_menu(title, menu);
 //		where:	title points to an array of details to display at the top of the menu
 //				menu points to an array of menu items
+//
 //		include: calling programs will need to include nc_main.h for function and data definitions
 //
 //	The menu will be displayed in the centre of an otherwise clear screen
@@ -15,7 +16,7 @@
 //		For large lists use Page-up and Page-down keys to scroll.
 //		Confirm menu selection by pressing the Return key.
 //			Or by pressing the line number of the required menu item.
-//		Use F1 to quit a menu (displayed at bottom of screen).
+//		Use Q to quit a menu (displayed at bottom of screen).
 //
 //	returns:
 //		menu selection - menu item/row number
@@ -43,6 +44,7 @@ int nc_menu(char **cpTitle, char **cpMenu)
 
     int i, j;
     int	iR, iC;					// row and column counts
+    int iInp = -1;				// menu key pressed
     int iOpt = -1;				// selected menu option
     int iMenuSize = 0;			// count of menu items
     int iMenuWidth = 0;			// max width of menu items
@@ -50,7 +52,7 @@ int nc_menu(char **cpTitle, char **cpMenu)
     int iTitleWidth = 0;		// max width of title
 
 
-    nc_message("Press F1 to quit");
+    nc_message("Press Q to quit");
 
     while (cpTitle[iTitleSize] != NULL)
       {
@@ -129,9 +131,9 @@ int nc_menu(char **cpTitle, char **cpMenu)
     post_menu(ncMenu);
     wrefresh( ncMenuWin);
 
-    while ((iOpt=toupper(wgetch(ncMenuWin))) != KEY_F(1))	// Get keystroke and convert to uppercase - F1 to quit
+    while ((iInp=toupper(wgetch(ncMenuWin))) != 'Q')	// Get keystroke and convert to uppercase - Q to quit
 	  {
-		switch (iOpt)						// first check for menu control actions
+		switch (iInp)						// first check for menu control actions
 		  {
 			case KEY_DOWN:					// cursor down
 				menu_driver(ncMenu, REQ_DOWN_ITEM);
@@ -149,19 +151,20 @@ int nc_menu(char **cpTitle, char **cpMenu)
 				iOpt=item_index(current_item(ncMenu))+1;
 				break;
 			default:
-				iOpt-='0';					// Typed menu selection number?
+				iOpt=iInp-'0';				// Typed menu selection number?
 		  }
 
 		if (iOpt > 0 && iOpt <= iMenuSize)
 			if (cpMenu[iOpt-1][0] != '!') break;		//valid selection?
 	  }
 
-    if (iOpt== KEY_F(1)) iOpt=NC_QUIT;		// Convert F1 so calling program doesn't need to deal with keydefs
+	if (iInp == 'Q') iOpt=NC_QUIT;			// Let calling program know that the menu was quit
 
 error:										//Tidy-up and close
 	unpost_menu(ncMenu);
 	for (i=0; i < iMenuSize; ++i) free_item(ncMenuItems[i]);
 	free_menu(ncMenu);
+    nc_message(" ");						// Clear quit message from bottom of screen
 	delwin( ncMenuWin);						// remove menu from display
 	touchwin(stdscr);						// touch and refresh screen to actually clear menu
 	refresh();

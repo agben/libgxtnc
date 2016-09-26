@@ -4,15 +4,16 @@
 //
 //	usage:	./nc_example
 //
+//	Display a simple menu that allows you to input or display a message.
+//
 //	GNU GPLv3+ licence	libgxtnc by Andrew Bennington 2016 <www.benningtons.net>
 //
 //--------------------------------------------------------------
 
 
-#include <stdlib.h>
 #include <unistd.h>		// for sleep
 
-#include <nc_main.h>	// NC ncurses utility definitions
+#include <nc_main.h>	// libgxtnc definitions
 
 
 #define NC_INPUT_TITLE_P0	2				// offset for message input title
@@ -24,15 +25,15 @@ char *cpTitle[] =	{	"libgxtnc example Menu",		// Main menu title
 
 char *cpMenu[] =	{	"1) Input message",
 						"2) Display message",
+						"!3) Unavailable option",		// the ! marks this option as unavailable
 						(char *) NULL};
 
 int main(void)
   {
-//	int	i;
-	int	iOpt;			// selected menu option
+	int	iOpt;							// selected menu option
 
 #define MESS_S0 30
-	char cMessage[MESS_S0];			// message buffer
+	char cMessage[MESS_S0] = " ";		// message buffer
 
 	nc_start();											// initilise and startup ncurses screen display
 
@@ -40,16 +41,19 @@ int main(void)
 	  {
 		switch (iOpt)									// Check for menu selection actions
 		  {
-			case 1:
+			case 1:										// Display a message input window
 				nc_input(	cpTitle+NC_INPUT_TITLE_P0,	// title
 							cMessage,					// input buffer
 							MESS_S0-1);					// size
 				break;
-			case 2:
+			case 2:										// Display stored message at bottom of screen
 				nc_message(cMessage);
 				sleep(2);
 				break;
 		  }
 	  }
+
+	nc_stop();											// tidily shutdown ncurses
+
 	return 0;
   }

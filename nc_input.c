@@ -32,7 +32,7 @@ int nc_input(char **cpTitle, char *cpBuff, int iMax)
     int iTitleWidth = 0;		// max width of title
 
 
-    nc_message("Use % for wildcard");
+//    nc_message("Use % for wildcard");						// the calling program should request this
 
     while (cpTitle[iTitleSize] != NULL)
       {
