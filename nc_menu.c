@@ -106,8 +106,9 @@ int nc_menu(char **cpTitle, char **cpMenu)
 				iTitleSize+2,
 				1));
     set_menu_format(	ncMenu,  			// setting menu display size to allow scrolling
-			iR-(iTitleSize+2),				// menu rows to display
+			iR-(iTitleSize+3),				// menu rows to display
 			1);								// menu columns (if using multi columns)
+//			iR-(iTitleSize+2),				// menu rows to display
 
     menu_opts_off(ncMenu, O_NONCYCLIC);		// allow wrapping from bottom/top of menu
 
