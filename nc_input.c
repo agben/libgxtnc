@@ -32,8 +32,6 @@ int nc_input(char **cpTitle, char *cpBuff, int iMax)
     int iTitleWidth = 0;		// max width of title
 
 
-//    nc_message("Use % for wildcard");						// the calling program should request this
-
     while (cpTitle[iTitleSize] != NULL)
       {
 		j=strlen(cpTitle[iTitleSize]);
@@ -43,6 +41,7 @@ int nc_input(char **cpTitle, char *cpBuff, int iMax)
 
     iR=((iTitleSize+4) < LINES) ? iTitleSize+4 : LINES;			// determine total height of the window
     iC=(iMax > iTitleWidth) ? iMax : iTitleWidth;				// determine the total width of the window
+	iC+=2;
     if (iC > COLS) iC=COLS;
 
     ncInputWin=newwin(iR, iC, ((LINES-iR)/2), ((COLS-iC)/2));	// create window in centre of screen
@@ -53,7 +52,8 @@ int nc_input(char **cpTitle, char *cpBuff, int iMax)
     wattron(  ncInputWin, COLOR_PAIR(1));						//Use colour for title
     for (i=0; i < iTitleSize; ++i)
 	  {
-		mvwprintw(ncInputWin, (i+1), (iTitleWidth < iC)?((iC-iTitleWidth)/2):2, cpTitle[i]);
+		mvwprintw(ncInputWin, (i+1),
+		(iTitleWidth < iC)?((iC-iTitleWidth)/2):2, cpTitle[i]);
 	  }
     wattroff( ncInputWin, COLOR_PAIR(1));
 
@@ -64,7 +64,7 @@ int nc_input(char **cpTitle, char *cpBuff, int iMax)
     wrefresh( ncInputWin);
 
     echo();
-    mvwgetnstr(ncInputWin, (iTitleSize+2), 2, cpBuff, iMax);	//Allow user to input a string
+    mvwgetnstr(ncInputWin, (iTitleSize+2), 1, cpBuff, iMax);	//Allow user to input a string
     noecho();
 
     delwin(ncInputWin);											// remove window
