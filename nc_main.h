@@ -16,7 +16,8 @@
 
 //------------------------------nc utilities
 void	nc_start(void);					// initialise and start-up ncurses
-int		nc_input(char **, char *, int);	// input window management
+//int		nc_input(char **, char *, int);	// input window management
+int		nc_input(char *, char *, int);	// input window management
 int		nc_menu(char **, char **);		// menu management
 void	nc_message(char *);				// output status message
 void	nc_stop(void);					// tidy up and stop ncurses

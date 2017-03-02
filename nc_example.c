@@ -16,11 +16,7 @@
 #include <nc_main.h>	// libgxtnc definitions
 
 
-#define NC_INPUT_TITLE_P0	2				// offset for message input title
-
 char *cpTitle[] =	{	"libgxtnc example Menu",		// Main menu title
-						(char *) NULL,
-						"Enter your message",			// Message input title
 						(char *) NULL};
 
 char *cpMenu[] =	{	"1) Input message",
@@ -42,7 +38,7 @@ int main(void)
 		switch (iOpt)									// Check for menu selection actions
 		  {
 			case 1:										// Display a message input window
-				nc_input(	cpTitle+NC_INPUT_TITLE_P0,	// title
+				nc_input(	"Enter your message",		// title
 							cMessage,					// input buffer
 							MESS_S0-1);					// size
 				break;
