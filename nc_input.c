@@ -28,26 +28,13 @@ int nc_input(char *cpTitle, char *cpBuff, int iMax)
 
     int i, j = 0;
     int	iR, iC;					// row and column counts
-    int iTitleSize = 0;			// count of lines to display in the title
-    int iTitleWidth = 0;		// max width of title
 	char *cp;
 
 
-	for (i=0; ; i++)			// check through the title to count lines and find max line width
-      {
-		if (cpTitle[i] == '\n' || cpTitle[i] == '\0')
-		  {
-			if (j > iTitleWidth) iTitleWidth=j;	// widest title line?
-			iTitleSize++;						// count title lines
-			if (cpTitle[i] == '\0') break;		// end of title string?
-			j=0;
-		  }
-		else
-			j++;						// count length of each title line
-      }
+	nc_str nct = nc_string(cpTitle);	// check through the title to count lines and find max line width
 
-    iR=((iTitleSize+4) < LINES) ? iTitleSize+4 : LINES;			// determine total height of the window
-    iC=(iMax > iTitleWidth) ? iMax : iTitleWidth;				// determine the total width of the window
+    iR=((nct.iLineCount+4) < LINES) ? nct.iLineCount+4 : LINES;	// determine total height of the window
+    iC=(iMax > nct.iMaxLineWidth) ? iMax : nct.iMaxLineWidth;	// determine the total width of the window
 	iC+=2;
     if (iC > COLS) iC=COLS;
 
@@ -58,7 +45,7 @@ int nc_input(char *cpTitle, char *cpBuff, int iMax)
 
 	wattron(ncInputWin, COLOR_PAIR(1));							//Use colour for title
 	cp=cpTitle;
-	for (i=0; i < iTitleSize; ++i)								// output each title line seperately for neatness
+	for (i=0; i < nct.iLineCount; ++i)							// output each title line seperately for neatness
 	  {
 		j=0;
 		while (cp[j] != '\n' && cp[j] != '\0') j++;				// find length of each line
@@ -68,14 +55,14 @@ int nc_input(char *cpTitle, char *cpBuff, int iMax)
 	  }
     wattroff( ncInputWin, COLOR_PAIR(1));
 
-    mvwaddch( ncInputWin, (iTitleSize+1), 0,	ACS_LTEE);		// box title from rest of window
-    mvwhline( ncInputWin, (iTitleSize+1), 1,	ACS_HLINE, iC-2);
-    mvwaddch( ncInputWin, (iTitleSize+1), iC-1,	ACS_RTEE);
+    mvwaddch( ncInputWin, (nct.iLineCount+1), 0,	ACS_LTEE);	// box title from rest of window
+    mvwhline( ncInputWin, (nct.iLineCount+1), 1,	ACS_HLINE, iC-2);
+    mvwaddch( ncInputWin, (nct.iLineCount+1), iC-1,	ACS_RTEE);
 
     wrefresh( ncInputWin);
 
     echo();
-    mvwgetnstr(ncInputWin, (iTitleSize+2), 1, cpBuff, iMax);	//Allow user to input a string
+    mvwgetnstr(ncInputWin, (nct.iLineCount+2), 1, cpBuff, iMax);	//Allow user to input a string
     noecho();
 
     delwin(ncInputWin);											// remove window

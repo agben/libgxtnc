@@ -16,8 +16,8 @@
 #include <nc_main.h>	// libgxtnc definitions
 
 
-char *cpTitle[] =	{	"libgxtnc example Menu",		// Main menu title
-						(char *) NULL};
+//char *cpTitle[] =	{	"libgxtnc example Menu",		// Main menu title
+//						(char *) NULL};
 
 char *cpMenu[] =	{	"1) Input message",
 						"2) Display message",
@@ -31,11 +31,12 @@ int main(void)
 #define MESS_S0 30
 	char cMessage[MESS_S0] = " ";		// message buffer
 
-	nc_start();											// initilise and startup ncurses screen display
+	nc_start();										// initilise and startup ncurses screen display
 
-	while ((iOpt=nc_menu(cpTitle,cpMenu)) != NC_QUIT)	// Display and manage menu until requested to quit
+	while ((iOpt=nc_menu("libgxtnc example Menu",
+							cpMenu)) != NC_QUIT)	// Display and manage menu until requested to quit
 	  {
-		switch (iOpt)									// Check for menu selection actions
+		switch (iOpt)								// Check for menu selection actions
 		  {
 			case 1:										// Display a message input window
 				nc_input(	"Enter your message",		// title

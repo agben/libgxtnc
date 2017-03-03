@@ -3,7 +3,8 @@
 //	ncurses menu control
 //
 //	usage:	selection = nc_menu(title, menu);
-//		where:	title points to an array of details to display at the top of the menu
+//		where:	title points to a null terminated string to display at the top of the menu
+//						this string may contain newlines (\n) for a multi-line title.
 //				menu points to an array of menu items
 //
 //		include: calling programs will need to include nc_main.h for function and data definitions
@@ -36,7 +37,7 @@
 #include <ut_error.h>	// error log and debug macros
 
 
-int nc_menu(char **cpTitle, char **cpMenu)
+int nc_menu(char *cpTitle, char **cpMenu)
   {
     MENU *ncMenu;				//menu handle
     ITEM **ncMenuItems;			//items to add to menu
@@ -48,18 +49,12 @@ int nc_menu(char **cpTitle, char **cpMenu)
     int iOpt = -1;				// selected menu option
     int iMenuSize = 0;			// count of menu items
     int iMenuWidth = 0;			// max width of menu items
-    int iTitleSize = 0;			// count of lines to display in the title
-    int iTitleWidth = 0;		// max width of title
+	char *cp;
 
 
     nc_message("Press Q to quit");
 
-    while (cpTitle[iTitleSize] != NULL)
-      {
-		j=strlen(cpTitle[iTitleSize]);
-		if (j>iTitleWidth) iTitleWidth=j;	// find the widest title line
-		iTitleSize++;						// how many title items?
-      }
+	nc_str nct=nc_string(cpTitle);	// check through the title to count lines and find max line width
 
     while (cpMenu[iMenuSize] != NULL)
       {
@@ -89,8 +84,8 @@ int nc_menu(char **cpTitle, char **cpMenu)
 		  }
 	  }
 
-    iR=((iMenuSize+iTitleSize+3) < LINES) ? iMenuSize+iTitleSize+3 : LINES;	// determine total height of menu
-    iC=((iMenuWidth+6) > iTitleWidth+4) ? iMenuWidth+6 : iTitleWidth+4;	// determine the total width of the menu
+    iR=((iMenuSize+nct.iLineCount+3) < LINES) ? iMenuSize+nct.iLineCount+3 : LINES;	// determine total height of menu
+    iC=((iMenuWidth+6) > nct.iMaxLineWidth+4) ? iMenuWidth+6 : nct.iMaxLineWidth+4;	// determine the total width of the menu
     if (iC > COLS) iC=COLS;
 
     ncMenuWin=newwin(iR, iC, ((LINES-iR)/2), ((COLS-iC)/2));	// create window for menu in centre of screen
@@ -101,14 +96,13 @@ int nc_menu(char **cpTitle, char **cpMenu)
     			ncMenuWin);					// set a window for our menu
     set_menu_sub(	ncMenu,
 			derwin(	ncMenuWin,				// define a sub-window for the menu
-				iR-(iTitleSize+2),
+				iR-(nct.iLineCount+2),
 				iC-2,
-				iTitleSize+2,
+				nct.iLineCount+2,
 				1));
     set_menu_format(	ncMenu,  			// setting menu display size to allow scrolling
-			iR-(iTitleSize+3),				// menu rows to display
+			iR-(nct.iLineCount+3),			// menu rows to display
 			1);								// menu columns (if using multi columns)
-//			iR-(iTitleSize+2),				// menu rows to display
 
     menu_opts_off(ncMenu, O_NONCYCLIC);		// allow wrapping from bottom/top of menu
 
@@ -120,14 +114,25 @@ int nc_menu(char **cpTitle, char **cpMenu)
 
     box	(ncMenuWin, 0, 0);					// box entire menu window
 
-    wattron(  ncMenuWin, COLOR_PAIR(1));			//Use colour for title
-    for (i=0; i < iTitleSize; ++i)
-		mvwprintw(ncMenuWin, (i+1), (iTitleWidth < iC)?((iC-iTitleWidth)/2):2, cpTitle[i]);
+    wattron(  ncMenuWin, COLOR_PAIR(1));	//Use colour for title
+
+	cp=cpTitle;
+	for (i=0; i < nct.iLineCount; ++i)		// output each title line seperately for neatness
+	  {
+		j=0;
+		while (cp[j] != '\n' && cp[j] != '\0') j++;		// find length of each line
+		mvwprintw(ncMenuWin, (i+1),
+				(j < iC)?((iC-j)/2):2, "%.*s", j, cp);
+		cp+=j+1;
+	  }
+
+//    for (i=0; i < nct.iLineCount; ++i)
+//		mvwprintw(ncMenuWin, (i+1), (nct.iMaxLineWidth < iC)?((iC-nct.iMaxLineWidth)/2):2, cpTitle[i]);
     wattroff( ncMenuWin, COLOR_PAIR(1));
 
-    mvwaddch( ncMenuWin, (iTitleSize+1), 0,	ACS_LTEE);	// box title from rest of menu
-    mvwhline( ncMenuWin, (iTitleSize+1), 1,	ACS_HLINE, iC-2);
-    mvwaddch( ncMenuWin, (iTitleSize+1), iC-1,	ACS_RTEE);
+    mvwaddch( ncMenuWin, (nct.iLineCount+1), 0,	ACS_LTEE);	// box title from rest of menu
+    mvwhline( ncMenuWin, (nct.iLineCount+1), 1,	ACS_HLINE, iC-2);
+    mvwaddch( ncMenuWin, (nct.iLineCount+1), iC-1,	ACS_RTEE);
 
     post_menu(ncMenu);
     wrefresh( ncMenuWin);
