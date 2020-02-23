@@ -153,13 +153,19 @@ int nc_menu(char *cpTitle, char **cpMenu)
 			case KEY_PPAGE:					// scroll up
 				menu_driver(ncMenu, REQ_SCR_UPAGE);
 				break;
+			case KEY_RIGHT:
 			case 10:						// enter key so select current item
 				iOpt=item_index(current_item(ncMenu))+1;
 				break;
+			case KEY_LEFT:
+				iInp='Q';
+				break;
+
 			default:
 				iOpt=iInp-'0';				// Typed menu selection number?
 		  }
 
+		if (iInp == 'Q') break;
 		if (iOpt > 0 && iOpt <= iMenuSize)
 			if (cpMenu[iOpt-1][0] != '!') break;		//valid selection?
 	  }
