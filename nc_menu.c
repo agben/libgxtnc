@@ -16,8 +16,10 @@
 //		Cursor keys to move the selection up/down.
 //		For large lists use Page-up and Page-down keys to scroll.
 //		Confirm menu selection by pressing the Return key.
-//			Or by pressing the line number of the required menu item.
+//			or by pressing the line number of the required menu item (only valid for 1-9 line menus).
+//			or by pressing cursor right.
 //		Use Q to quit a menu (displayed at bottom of screen).
+//			or by pressing cursor left.
 //
 //	returns:
 //		menu selection - menu item/row number
@@ -114,7 +116,7 @@ int nc_menu(char *cpTitle, char **cpMenu)
 
     box	(ncMenuWin, 0, 0);					// box entire menu window
 
-    wattron(  ncMenuWin, COLOR_PAIR(1));	//Use colour for title
+    wattron(  ncMenuWin, COLOR_PAIR(1));	// Use colour for title
 
 	cp=cpTitle;
 	for (i=0; i < nct.iLineCount; ++i)		// output each title line seperately for neatness
@@ -136,6 +138,8 @@ int nc_menu(char *cpTitle, char **cpMenu)
 
     post_menu(ncMenu);
     wrefresh( ncMenuWin);
+
+	i=((iMenuSize < 9) ? iMenuSize : 9);	// input selection range 1 to 9 or less for a smaller menu
 
     while ((iInp=toupper(wgetch(ncMenuWin))) != 'Q')	// Get keystroke and convert to uppercase - Q to quit
 	  {
@@ -166,7 +170,7 @@ int nc_menu(char *cpTitle, char **cpMenu)
 		  }
 
 		if (iInp == 'Q') break;
-		if (iOpt > 0 && iOpt <= iMenuSize)
+		if (iOpt > 0 && iOpt <= i)
 			if (cpMenu[iOpt-1][0] != '!') break;		//valid selection?
 	  }
 
