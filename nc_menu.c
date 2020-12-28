@@ -139,8 +139,6 @@ int nc_menu(char *cpTitle, char **cpMenu)
     post_menu(ncMenu);
     wrefresh( ncMenuWin);
 
-	i=((iMenuSize < 9) ? iMenuSize : 9);	// input selection range 1 to 9 or less for a smaller menu
-
     while ((iInp=toupper(wgetch(ncMenuWin))) != 'Q')	// Get keystroke and convert to uppercase - Q to quit
 	  {
 		switch (iInp)						// first check for menu control actions
@@ -166,11 +164,11 @@ int nc_menu(char *cpTitle, char **cpMenu)
 				break;
 
 			default:
-				iOpt=iInp-'0';				// Typed menu selection number?
+			  if (iInp > '0' && iInp <= '9') iOpt=iInp-'0';		// Typed menu selection number 1 to 9?
 		  }
 
 		if (iInp == 'Q') break;
-		if (iOpt > 0 && iOpt <= i)
+		if (iOpt > 0 && iOpt <= iMenuSize)
 			if (cpMenu[iOpt-1][0] != '!') break;		//valid selection?
 	  }
 
